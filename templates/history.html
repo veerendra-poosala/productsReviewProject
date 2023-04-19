@@ -1,0 +1,169 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Sample Review project{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    <!-- Popper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+
+    <style type="text/css">
+		.car-img {
+			height: 400px;
+			width: auto;
+			margin: auto;
+		}
+        #navbarNav{
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            align-items: center;
+            
+        }
+        #navbarOptions{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            
+            overflow: auto;
+            
+
+        }
+        
+        .success-message{
+            font-size: 18px;
+            font-weight: bolder;
+            color: #0cea0c;
+            }
+
+          .failure-message{
+            font-size: 18px;
+            font-weight: bolder;
+            color: red;
+          }
+          .message-container{
+           display: flex;
+           flex-direction: column;
+           justify-content: space-around;
+           align-items: center; 
+          }
+          .element-container{
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+            background-color: rgb(219, 216, 212);
+            border: 1px solid grey;
+            border-radius: 2px;
+            
+            
+          }
+          .user{
+            align-self: center;
+
+          }
+          .image-details{
+            align-self: center;
+          }
+        
+	</style>
+
+    {% block css %}{% endblock %}
+</head>
+<body>
+<nav style="background-image: linear-gradient(to right, rgb(165, 28, 124),rgb(195, 112, 167));" class="navbar navbar-expand navbar-dark bg-dark">
+    <a class="nav-link" href="{% url 'home' %}"><span class="nav-item active" style="color: whitesmoke; font-weight: 400;">Home</span></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul id="navbarOptions" class="navbar-nav ">
+            
+            {% if request.user.is_authenticated %}
+                <li class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'home' %}">Welcome <b style="color: whitesmoke;font-size: 18px;font-weight: 500;font-family: Georgia;">{{request.user.first_name}}</b></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'history' %}">History</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                </li>
+            {% else %}
+                <li class="nav-item {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'nav_to_login_page' %}">Login</a>
+                </li>
+                <li class="nav-item {% if request.resolver_match.url_name == 'register' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'nav_to_register_page' %}">Register</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+
+<div class="bg-container">
+
+    {% block content %}
+        {% for element in data %}
+        <div class="element-container">
+
+            <p class="user">user id : {{element.username}}</p>
+
+            <p class="image-details">Image id : {{element.image}}</p>
+
+            <p class="image-details">action taken : {{element.is_accepted}}</p>
+
+            <p class="image-details">time : {{element.action_datetime}}</p>
+
+
+        </div>
+            
+
+        {% endfor %}
+
+
+
+    {% endblock %}
+
+
+
+</div>
+
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+</body>
+</html>
