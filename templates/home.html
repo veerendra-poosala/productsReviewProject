@@ -128,11 +128,11 @@
     
 
     </div>
-    <a id="prevBtn" class="carousel-control-prev" href="#carouselExampleControls" data-slide="prev" role="button" >
+    <a  class="carousel-control-prev" href="#carouselExampleControls" data-slide="prev" role="button" >
       <span  class="carousel-control-prev-icon" aria-hidden="true"></span>
       <span class="sr-only">Previous</span>
     </a>
-    <a id="nextBtn" class="carousel-control-next" href="#carouselExampleControls" data-slide="next"  role="button" >
+    <a  class="carousel-control-next" href="#carouselExampleControls" data-slide="next"  role="button" >
       <span  class="carousel-control-next-icon" aria-hidden="true"></span>
       <span class="sr-only">Next</span>
     </a>
@@ -191,6 +191,139 @@
 
   createImage(0);
   
+  const carousel = document.getElementById('carouselExampleControls');
+
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  carousel.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+  });
+
+  carousel.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].clientX;
+    handleSwipe();
+  });
+
+  function handleSwipe() {
+  const minSwipeDistance = 50; // minimum distance to register a swipe
+
+  const swipeDistance = touchEndX - touchStartX;
+
+  if (swipeDistance > minSwipeDistance) {
+    // swipe right
+    
+    clearInterval(timer);
+    resetMessageText();
+    
+    // Send a GET request to retrieve the CSRF token
+    fetch('/home/get_csrf_token/', { method: 'GET', credentials: 'same-origin' })
+      .then(response => response.json())
+      .then(csrf_data => {
+        // Include the CSRF token in a fetch request
+
+        let csrfToken = csrf_data.csrf_token;
+        //console.log(csrfToken);
+
+        const activeImage = document.querySelector(".carousel-item.active img");
+        const image_id = activeImage.getAttribute("id");
+
+        let data = {
+          image_id : image_id,
+          is_accepted : true
+        }
+        
+        let options = {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken 
+          },
+          body: JSON.stringify(data)
+        }
+
+        
+        fetch(`/home/update/${image_id}/`, options)
+        .then(response => response.json())
+        .then(data=>{
+          let messageEle = document.getElementById('messageRejected');
+          messageEle.textContent = '';
+          
+          let messageAcceptedEle = document.getElementById('messageAccepted');
+          messageAcceptedEle.textContent = data.message;
+          
+
+        })
+        .catch(error => {
+          // Handle the error
+          console.log('error',error)
+        });
+        
+
+      })
+      .catch(error => {
+        // Handle the error
+        console.log('error',error)
+      });
+  } else if (swipeDistance < -minSwipeDistance) {
+    // swipe left
+    clearInterval(timer);
+    resetMessageText();
+    // Send a GET request to retrieve the CSRF token
+    fetch('/home/get_csrf_token/', { method: 'GET', credentials: 'same-origin' })
+          .then(response => response.json())
+          .then(csrf_data => {
+            // Include the CSRF token in a fetch request
+
+            let csrfToken = csrf_data.csrf_token;
+            //console.log(csrfToken);
+
+            const activeImage = document.querySelector(".carousel-item.active img");
+            const image_id = activeImage.getAttribute("id");
+
+            let data = {
+              image_id : image_id,
+              is_accepted : false
+            }
+            
+            let options = {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken 
+              },
+              body: JSON.stringify(data)
+            }
+
+            
+            fetch(`/home/update/${image_id}/`, options)
+            .then(response => response.json())
+            .then(data=>{
+              let messageEle = document.getElementById('messageRejected');
+              messageEle.textContent = data.message;
+              
+              let messageAcceptedEle = document.getElementById('messageAccepted');
+              messageAcceptedEle.textContent = '';
+             
+              
+
+            })
+            .catch(error => {
+              // Handle the error
+              console.log('error',error)
+            });
+            
+
+          })
+          .catch(error => {
+            // Handle the error
+            console.log('error',error)
+          });
+  }
+}
+
   
   nextBtn.addEventListener('click',()=>{
 
