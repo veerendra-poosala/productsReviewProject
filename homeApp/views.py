@@ -27,6 +27,7 @@ import json
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+from datetime import timedelta
 
 #generating csrf token
 def generate_csrf_token(request):
@@ -149,7 +150,9 @@ class GetHistoryOfImages(APIView):
             #print(is_accepted)
 
             action_datetime = user_actions_model_obj.action_datetime
-            time = action_datetime.strftime("%d %b %Y %I:%M %p")
+            delta = timedelta(hours=4,minutes=30)
+            action_datetime += delta
+            time = action_datetime.strftime("%d/%b/%Y-%I:%M %p")
             #print(time)
             #print(action_datetime)
             
@@ -167,20 +170,10 @@ class GetHistoryOfImages(APIView):
             send_data.append(data_obj)
             
         send_data = json.dumps(send_data)   
-        x_data = {
-            'message':send_data,
-            'status_code':200
-
-        }
         
-        x_data = json.dumps(x_data)
-        #json_data = JSONRenderer().render(x_data)
-        #print(type(json_data),json_data)
-        #print(type(send_data),send_data)
-        #print(type(json_data),json_data)
         #return render(request,'history.html',{'data':x_data})
 
-        #next emcheyali ante get method raasukovatame , template loki velli
+       
         return HttpResponse(send_data,content_type='application/json')
 
     
