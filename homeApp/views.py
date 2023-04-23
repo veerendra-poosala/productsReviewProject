@@ -63,14 +63,19 @@ class PerformOperationsOnImageView(APIView):
     serializer_class = UserActionsOnImagesModel
 
     def post(self, request,user_input):
+        
+       
 
         image = ImagesModel.objects.get(pk=int(user_input)).image_id
-        username = request.user.id
+        userid = request.user.id
+        #print('username',userid)
+        user = User.objects.get(pk=userid)
+        username=user.first_name
         is_accepted = request.data['is_accepted']
 
 
         data = {
-            'username': username,
+            'username': userid,
             'image': image,
             'is_accepted': is_accepted, # use the value of is_accepted variable
             
@@ -90,14 +95,14 @@ class PerformOperationsOnImageView(APIView):
             image.save()
 
             if is_accepted:
-                message = f'Hey {request.user} you Selected the {image.name} image'
+                message = f'Hey {username} you Selected the {image.name} image'
                 j_data = {
                     'message': message,
                     'status': 200
                 }
                 json_data = json.dumps(j_data)
             else:
-                message = f'Hey {request.user} you Rejected the {image.name} image'
+                message = f'Hey {username} you Rejected the {image.name} image'
                 j_data = {
                     'message': message,
                     'status': 200
@@ -107,7 +112,7 @@ class PerformOperationsOnImageView(APIView):
             
             return HttpResponse(json_data,content_type='application/json')
         else:
-            #print(serializer.errors)
+            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
@@ -124,7 +129,58 @@ class GetHistoryOfImages(APIView):
 
         
         data = serializer.data
-        return render(request,'history.html',{'data':data})
 
+        send_data = []
+
+        for data in serializer.data:
+
+            #print(data['is_accepted'])
+            #print(type(data['username']),data['username'])
+
+            
+            username = User.objects.get(pk=data['username'])
+            #print(username.first_name)
+
+            image = ImagesModel.objects.get(pk=data['image'])
+            #print(image.name)
+
+            user_actions_model_obj = UserActionsOnImagesModel.objects.get(pk=data['id'])
+            is_accepted = user_actions_model_obj.is_accepted
+            #print(is_accepted)
+
+            action_datetime = user_actions_model_obj.action_datetime
+            time = action_datetime.strftime("%d %b %Y %I:%M %p")
+            #print(time)
+            #print(action_datetime)
+            
+            
+            data_obj = {
+                'username':username.first_name,
+                'image':image.name,
+                'is_accepted':is_accepted,
+                'action_datetime':time
+
+            }
+            #print(data_obj) 
+            j_data = json.dumps(data_obj)
+            #print(j_data)
+            send_data.append(data_obj)
+            
+        send_data = json.dumps(send_data)   
+        x_data = {
+            'message':send_data,
+            'status_code':200
+
+        }
+        
+        x_data = json.dumps(x_data)
+        #json_data = JSONRenderer().render(x_data)
+        #print(type(json_data),json_data)
+        #print(type(send_data),send_data)
+        #print(type(json_data),json_data)
+        #return render(request,'history.html',{'data':x_data})
+
+        #next emcheyali ante get method raasukovatame , template loki velli
+        return HttpResponse(send_data,content_type='application/json')
 
     

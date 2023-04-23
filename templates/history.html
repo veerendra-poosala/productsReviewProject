@@ -69,15 +69,27 @@
            justify-content: space-around;
            align-items: center; 
           }
+          .bg-elements-container{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            
+
+
+          }
           .element-container{
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
             justify-content: space-around;
             align-items: center;
-            background-color: rgb(219, 216, 212);
+            margin-top: 3px;
+            margin-bottom: 3px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
             border: 1px solid grey;
-            border-radius: 2px;
+            border-radius: 6px;
+            min-width: 98vw;
             
             
           }
@@ -108,7 +120,7 @@
                     <a class="nav-link" href="{% url 'home' %}">Welcome <b style="color: whitesmoke;font-size: 18px;font-weight: 500;font-family: Georgia;">{{request.user.first_name}}</b></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'history' %}">History</a>
+                    <a class="nav-link" href="{% url 'nav_to_history_page' %}">History</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'logout' %}">Logout</a>
@@ -127,33 +139,72 @@
 
 
 <div class="bg-container">
-
-    {% block content %}
-        {% for element in data %}
-        <div class="element-container">
-
-            <p class="user">user id : {{element.username}}</p>
-
-            <p class="image-details">Image id : {{element.image}}</p>
-
-            <p class="image-details">action taken : {{element.is_accepted}}</p>
-
-            <p class="image-details">time : {{element.action_datetime}}</p>
-
-
+ 
+        <div id="elementsContainer" class="bg-elements-container">
+            
+            
+            
+        
         </div>
             
 
-        {% endfor %}
-
-
-
-    {% endblock %}
-
-
-
 </div>
 
+<script type="text/javascript">
+
+
+    function createImageHistoryData(object){
+        let elementsContainer = document.getElementById('elementsContainer');
+
+
+        let {username,image,is_accepted,action_datetime} = object
+
+        let container = document.createElement('div');
+        container.classList.add('element-container');
+
+        let usernameEle = document.createElement('span');
+        usernameEle.textContent = username;
+        container.appendChild(usernameEle);
+
+
+        let isAcceptedEle = document.createElement('span');
+        if (is_accepted){
+            isAcceptedEle.textContent = 'Accepted';
+        }else{
+            isAcceptedEle.textContent = 'Rejected';
+        }
+        container.appendChild(isAcceptedEle);
+
+        let imageNameEle = document.createElement('span');
+        imageNameEle.textContent = image;
+        container.appendChild(imageNameEle);
+
+       
+
+        let dateTimeEle = document.createElement('span');
+        dateTimeEle.textContent = action_datetime;
+        container.appendChild(dateTimeEle);
+
+        elementsContainer.appendChild(container);
+
+
+
+    }
+    function getHistory(){
+        fetch('/home/history/', { method: 'GET', credentials: 'same-origin' })
+        .then(response => response.json())
+        .then(data=>{
+            
+            for (let eachObj of data){
+                console.log(eachObj);
+                createImageHistoryData(eachObj);
+            }
+        });
+    }
+    getHistory();
+
+
+</script>
 
 
 

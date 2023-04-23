@@ -7,6 +7,9 @@ from django.http import HttpResponse
 
 from phonenumbers import parse, is_valid_number
 from django.core.exceptions import ValidationError
+
+from django.core.exceptions import ObjectDoesNotExist
+
 from django.utils.crypto import get_random_string
 
 from django.contrib.auth.models import User
@@ -21,6 +24,13 @@ def home(request):
     if request.user.is_authenticated:
         
         return render(request, 'home.html')
+    else:
+        return render(request,'login.html')
+    
+def nav_to_history_page(request):
+    if request.user.is_authenticated:
+        
+        return render(request, 'history.html')
     else:
         return render(request,'login.html')
 
@@ -95,13 +105,13 @@ def signup_view(request):
                 #User = get_user_model()
                 try:
                     user=User.objects.get(username = request.POST['phone_number'])
-                    auth.login(request,user)
+                    
                     #sending otp to phone number
                     otp = send_otp(phone_number)
                     #print('otp: ',otp)
                     return redirect('nav_to_otp_page')
                 
-                except user.DoesNotExist:
+                except ObjectDoesNotExist:
                     new_user = User.objects.create_user(username=phone_number,email='xyz@gmail.com',
                                             password='000000',first_name=username, is_staff = False)
                     
